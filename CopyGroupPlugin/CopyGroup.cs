@@ -27,43 +27,53 @@ namespace CopyGroupPlugin
                 Element grElement = doc.GetElement(reference);
 
                 //Group group = (Group)element;
-                Group group = grElement as Group; // Exeption-less construction (null if impossible)
+                Group group = grElement as Group; // Exception-less construction (null if impossible)
 
                 //XYZ sourceGroupPoint = element.Location.Point;
 
-                LocationPoint grElemLP = grElement.Location as LocationPoint;
-                XYZ groupPoint = grElemLP.Point as XYZ;
+                //LocationPoint grElemLP = grElement.Location as LocationPoint;
+                //XYZ groupLP = grElemLP.Point as XYZ; // Group Location Point
 
-                Room sourceRoom = doc.GetRoomAtPoint(groupPoint);
+                BoundingBoxXYZ groupBB = grElement.get_BoundingBox(null);
+                XYZ groupCP = (groupBB.Min + groupBB.Max) / 2; // Group Center Point
+
+                //TaskDialog.Show("LP - CP", $"{groupLP.X} - {groupCP.X}{Environment.NewLine}{groupLP.Y} - {groupCP.Y}{Environment.NewLine}{groupLP.Z} - {groupCP.Z}");
+
+                Room sourceRoom = doc.GetRoomAtPoint(groupCP);
                 if (sourceRoom == null)
                 {
-                    TaskDialog.Show("Прервано", "Не удалось определить принадлежность выбранной группы какой-либо комнате");
+                    TaskDialog.Show("Прервано", "Не удалось определить принадлежность выбранной группы к какой-либо комнате");
                     return Result.Cancelled;
                 }
 
                 Element sourceRoomElement = sourceRoom as Element;
 
                 LocationPoint sourceElemLP = sourceRoomElement.Location as LocationPoint;
-                XYZ sourceRoomPoint = sourceElemLP.Point as XYZ;
+                XYZ sourceRoomLP = sourceElemLP.Point as XYZ;
 
-                double deltaX = groupPoint.X - sourceRoomPoint.X;
-                double deltaY = groupPoint.Y - sourceRoomPoint.Y;
+                double deltaX = groupCP.X - sourceRoomLP.X;
+                double deltaY = groupCP.Y - sourceRoomLP.Y;
 
                 XYZ userPoint = uiDoc.Selection.PickPoint("Выберите точку");
 
                 Room destRoom = doc.GetRoomAtPoint(userPoint);
                 if (destRoom == null)
                 {
-                    TaskDialog.Show("Прервано", "Не удалось определить принадлежность выбранной точки какой-либо комнате");
+                    TaskDialog.Show("Прервано", "Не удалось определить принадлежность выбранной точки к какой-либо комнате");
                     return Result.Cancelled;
                 }
 
                 Element destRoomElement = destRoom as Element;
 
-                LocationPoint destElemLP = destRoomElement.Location as LocationPoint;
-                XYZ destRoomPoint = destElemLP.Point as XYZ;
+                //LocationPoint destElemLP = destRoomElement.Location as LocationPoint;
+                //XYZ destRoomLP = destElemLP.Point as XYZ; // Room Location Point
 
-                XYZ placePoint = new XYZ(destRoomPoint.X + deltaX, destRoomPoint.Y + deltaY, 0);
+                BoundingBoxXYZ destRoomBB = destRoomElement.get_BoundingBox(null);
+                XYZ destRoomCP = (destRoomBB.Min + destRoomBB.Max) / 2; // Room Center Point
+
+                //TaskDialog.Show("LP - CP", $"{destRoomLP.X} - {destRoomCP.X}{Environment.NewLine}{destRoomLP.Y} - {destRoomCP.Y}{Environment.NewLine}{destRoomLP.Z} - {destRoomCP.Z}");
+
+                XYZ placePoint = new XYZ(destRoomCP.X + deltaX, destRoomCP.Y + deltaY, 0);
 
                 Transaction transaction = new Transaction(doc);
                 transaction.Start("Копирование группы объектов");
