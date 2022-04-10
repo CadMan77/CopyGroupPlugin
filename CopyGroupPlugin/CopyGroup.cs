@@ -34,8 +34,7 @@ namespace CopyGroupPlugin
                 //LocationPoint grElemLP = grElement.Location as LocationPoint;
                 //XYZ groupLP = grElemLP.Point as XYZ; // Group Location Point
 
-                BoundingBoxXYZ groupBB = grElement.get_BoundingBox(null);
-                XYZ groupCP = (groupBB.Min + groupBB.Max) / 2; // Group Center Point
+                XYZ groupCP = GetElementCenter(grElement); // Group Center Point
 
                 //TaskDialog.Show("LP - CP", $"{groupLP.X} - {groupCP.X}{Environment.NewLine}{groupLP.Y} - {groupCP.Y}{Environment.NewLine}{groupLP.Z} - {groupCP.Z}");
 
@@ -68,12 +67,12 @@ namespace CopyGroupPlugin
                 //LocationPoint destElemLP = destRoomElement.Location as LocationPoint;
                 //XYZ destRoomLP = destElemLP.Point as XYZ; // Room Location Point
 
-                BoundingBoxXYZ destRoomBB = destRoomElement.get_BoundingBox(null);
-                XYZ destRoomCP = (destRoomBB.Min + destRoomBB.Max) / 2; // Room Center Point
+                XYZ destRoomCP = GetElementCenter(destRoomElement); // Room Center Point
 
                 //TaskDialog.Show("LP - CP", $"{destRoomLP.X} - {destRoomCP.X}{Environment.NewLine}{destRoomLP.Y} - {destRoomCP.Y}{Environment.NewLine}{destRoomLP.Z} - {destRoomCP.Z}");
 
-                XYZ placePoint = new XYZ(destRoomCP.X + deltaX, destRoomCP.Y + deltaY, 0);
+                //XYZ placePoint = new XYZ(destRoomLP.X + deltaX, destRoomLP.Y + deltaY, 0);
+                XYZ placePoint = new XYZ(destRoomCP.X + deltaX, destRoomCP.Y + deltaY, 0); // для применения на этажах с отметкой отличной от 0 необходимо добавить обработку координаты Z (брать из активного вида)
 
                 Transaction transaction = new Transaction(doc);
                 transaction.Start("Копирование группы объектов");
@@ -93,6 +92,11 @@ namespace CopyGroupPlugin
                 message = ex.Message;
                 return Result.Failed;
             }
+        }
+        public XYZ GetElementCenter(Element elem)
+        {
+            BoundingBoxXYZ bounding = elem.get_BoundingBox(null);
+            return (bounding.Min + bounding.Max) / 2;
         }
     }
     public class GroupFilter : ISelectionFilter
