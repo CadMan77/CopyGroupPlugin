@@ -103,8 +103,8 @@ namespace CopyGroupPlugin
     {
         public bool AllowElement(Element elem)
         {
-            #region Определение разрешенных элементов по внутреннему названию категории (?не работает?)
-            //if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_IOSGroups)
+            #region Определение разрешенных элементов по внутреннему названию категории
+            //if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_IOSModelGroups)
             //    return true;
             //else
             //    return false;
